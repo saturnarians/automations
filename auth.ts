@@ -10,7 +10,7 @@ dotenv.config();
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  await page.goto('https://2clicks.ng/login');
+  await page.goto('https://2clicks.ng/auth');
 
   await page.fill('input[name="email"]', CONFIG.EMAIL);
   await page.fill('input[name="password"]', CONFIG.PASSWORD);
@@ -24,3 +24,4 @@ dotenv.config();
 
   console.log('Login saved to state.json');
 })();
+

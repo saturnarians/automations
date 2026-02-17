@@ -1,1 +1,22 @@
-{}
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "https://2clicks.ng",
+      "localStorage": [
+        {
+          "name": "accessToken",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1vbmdlb3JnZWxpbWl0ZWRAZ21haWwuY29tIiwiaWQiOjQ1OCwicm9sZSI6InNlbGxlciIsImlhdCI6MTc3MTI5ODI2MywiZXhwIjoxNzcxMzAxODYzfQ.mEjHuBzTgkYQaxk-yvoodNuxEJZL_H9gN4lyZXeV1xI"
+        },
+        {
+          "name": "refreshToken",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1vbmdlb3JnZWxpbWl0ZWRAZ21haWwuY29tIiwiaWQiOjQ1OCwicm9sZSI6InNlbGxlciIsImlhdCI6MTc3MTI5ODI2MywiZXhwIjoxNzcxOTAzMDYzfQ.f8u9fUk12aoMs2ErfAvyUduep6mvLyI8Fa357NfLZl4"
+        },
+        {
+          "name": "persist:root",
+          "value": "{\"settings\":\"{\\\"isLoading\\\":false,\\\"isGrid\\\":false,\\\"categories\\\":[]}\",\"_persist\":\"{\\\"version\\\":-1,\\\"rehydrated\\\":true}\"}"
+        }
+      ]
+    }
+  ]
+}

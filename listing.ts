@@ -1,33 +1,79 @@
 import { chromium } from 'playwright';
-import type { Page } from 'playwright';
-import fs from 'node:fs';
+import type { BrowserContext, Locator, Page } from 'playwright';
 import { CONFIG } from './config.js';
 import { readListings } from './utils/excelReader.js';
 import { transform } from './utils/transformer.js';
 
+const AUTH_FILE = 'state.json';
+
+function firstVisible(locator: Locator) {
+  return locator.first();
+}
+
+async function loginAndConfirm(context: BrowserContext) {
+  if (!CONFIG.EMAIL || !CONFIG.PASSWORD) {
+    throw new Error('Missing EMAIL or PASSWORD in .env');
+  }
+
+  const page = await context.newPage();
+  await page.goto('https://2clicks.ng/auth', { waitUntil: 'domcontentloaded' });
+
+  if (page.url().includes('/auth') || page.url().includes('/login')) {
+    const emailInput = firstVisible(
+      page.locator('input[name="email"], input[type="email"], input[id*="email" i]')
+    );
+    const passwordInput = firstVisible(
+      page.locator('input[name="password"], input[type="password"], input[id*="password" i]')
+    );
+
+    await emailInput.waitFor({ state: 'visible', timeout: 45000 });
+    await emailInput.fill(CONFIG.EMAIL);
+
+    await passwordInput.waitFor({ state: 'visible', timeout: 45000 });
+    await passwordInput.fill(CONFIG.PASSWORD);
+
+    const submitButton = firstVisible(
+      page.locator(
+        'button[type="submit"], button:has-text("Login"), button:has-text("Log in"), button:has-text("Sign in")'
+      )
+    );
+
+    await submitButton.waitFor({ state: 'visible', timeout: 30000 });
+    await submitButton.click();
+
+    await page.waitForFunction(() => !location.pathname.includes('/auth') && !location.pathname.includes('/login'), {
+      timeout: 60000
+    });
+  }
+
+  await page.goto('https://2clicks.ng/selling', { waitUntil: 'domcontentloaded' });
+
+  if (page.url().includes('/auth') || page.url().includes('/login')) {
+    throw new Error('Login not confirmed. Still redirected to auth/login page.');
+  }
+
+  await context.storageState({ path: AUTH_FILE });
+  console.log('Login confirmed. Keeping this tab open and continuing with new tabs.');
+}
+
 async function ensureSellingForm(page: Page) {
   await page.goto('https://2clicks.ng/selling', { waitUntil: 'domcontentloaded' });
 
-  if (page.url().includes('/login')) {
-    throw new Error('Redirected to login. Run `npx tsx auth.ts` to refresh state.json.');
+  if (page.url().includes('/auth') || page.url().includes('/login')) {
+    throw new Error('Session expired: redirected to auth/login page.');
   }
 
   await page.getByText('Properties', { exact: true }).click({ timeout: 20000 });
   await page.getByText('Houses & Flats for Rent', { exact: true }).click({ timeout: 20000 });
   await page.getByText('Continue', { exact: true }).click({ timeout: 20000 });
-
   await page.waitForSelector('input[name="name"]', { timeout: 45000 });
 }
 
 (async () => {
   const browser = await chromium.launch({ headless: false });
+  const context = await browser.newContext();
 
-  const authFile = 'state.json';
-  const hasState = fs.existsSync(authFile) && fs.statSync(authFile).size > 0;
-
-  const context = await browser.newContext(
-    hasState ? { storageState: authFile } : {}
-  );
+  await loginAndConfirm(context);
 
   const listings = readListings();
   const targetListings = listings.slice(0, CONFIG.MAX_TABS);
@@ -81,4 +127,5 @@ async function ensureSellingForm(page: Page) {
     // Keep the process alive so tabs remain open for manual actions.
   });
 })();
+
 

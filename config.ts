@@ -10,5 +10,5 @@ export const CONFIG = {
   EMAIL: process.env['EMAIL'] || '',
   PASSWORD: process.env['PASSWORD'] || '',
   LISTINGS_FILE: process.env['LISTINGS_FILE'] || '',
-  MAX_TABS: parseMaxTabs(process.env['MAX_TABS'], 7)
+  MAX_TABS: parseMaxTabs(process.env['MAX_TABS'], 5)
 };
